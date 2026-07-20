@@ -33,10 +33,20 @@
 - [x] **Kafka event flow**: transaction.initiated → fraud.check → fraud.passed/failed
 - [x] Saga choreography groundwork
 
-## 🚧 In Progress (Phase 3)
+## ✅ Completed (Phase 3)
 
-### Phase 3: External Integration & Settlement (Next)
-- [ ] Bank-simulator-service (ISO 8583, gRPC)
+### Phase 3: Bank Simulator & gRPC Integration
+- [x] **Bank-simulator-service** (ISO 8583, gRPC)
+  - [x] gRPC service with protobuf definitions
+  - [x] Simplified ISO 8583 message format (MTI 0100/0110)
+  - [x] Chaos engineering: injectable latency and failure rates
+  - [x] 95% approval rate simulation
+  - [x] Response codes: 00 (approved), 05 (declined), 12/61 (validation)
+- [x] Saga choreography between transaction → fraud → bank
+
+## 🚧 In Progress (Phase 4)
+
+### Phase 4: Ledger & Remaining Services (Next)
 - [ ] Ledger-service (double-entry, ISO 20022 XML)
 - [ ] SFTP file generation for settlement
 - [ ] Merchant-service (onboarding, API keys)
