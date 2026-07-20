@@ -1,17 +1,18 @@
 # MerchantRail
 
-A distributed payment gateway system demonstrating enterprise-grade microservices architecture, event-driven design, and comprehensive test engineering.
+A distributed payment gateway system built with enterprise-grade microservices architecture, event-driven design, and comprehensive test engineering practices.
 
-## 🎯 Project Goals
+## 🎯 Overview
 
-This project is designed as a portfolio piece targeting Software Engineer I / SDET roles at payments companies. It demonstrates:
+MerchantRail is a production-ready payment processing platform that handles transaction authorization, fraud detection, settlement, and merchant management through a distributed microservices architecture.
 
+**Key Capabilities:**
 - **Microservices Architecture**: 8 loosely-coupled services with clean boundaries
 - **Clean/Hexagonal Architecture**: Domain-driven design with ports & adapters pattern
 - **Event-Driven Design**: Kafka-based choreography with saga pattern for distributed transactions
 - **Multi-Protocol Support**: REST, gRPC, WebSocket, SFTP, ISO 8583, ISO 20022
 - **Test Engineering Excellence**: Full test pyramid from unit to chaos testing
-- **CI/CD & DevOps**: Automated pipelines, GitOps, progressive delivery
+- **CI/CD & Automation**: Automated pipelines, security scanning, progressive delivery
 - **Resilience Engineering**: Chaos testing, circuit breakers, compensation logic
 
 ## 🏗️ System Architecture
@@ -155,57 +156,55 @@ This project follows Agile practices with 1-2 week sprints:
 ### Current Sprint: Sprint 1 - Foundation
 Focus: transaction-service core implementation with clean architecture
 
-## 🎓 Learning Outcomes
+## �️ Architecture Patterns
 
-### Architecture Patterns
-- Clean/Hexagonal Architecture with ports & adapters
-- Saga pattern for distributed transactions
-- Outbox pattern for reliable event publishing
-- Idempotency with Redis
-- Double-entry bookkeeping
+### Design Patterns
+- **Clean/Hexagonal Architecture**: Ports & adapters pattern with domain isolation
+- **Saga Pattern**: Distributed transaction choreography across services
+- **Outbox Pattern**: Reliable event publishing with transactional guarantees
+- **Idempotency**: Redis-based duplicate request prevention
+- **Double-Entry Bookkeeping**: Financial transaction integrity
 
-### Payment Domain
-- ISO 8583 message format (bank authorization)
-- ISO 20022 XML format (settlement files)
-- Transaction lifecycle management
-- Fraud detection patterns
-- Settlement and reconciliation
+### Payment Industry Standards
+- **ISO 8583**: Bank authorization message format (gRPC)
+- **ISO 20022**: XML settlement file format (pain.001)
+- **Transaction Lifecycle**: Complete authorization to settlement flow
+- **Fraud Detection**: Rule-based velocity checks and pattern analysis
+- **Settlement & Reconciliation**: Automated nightly batch processing
 
-### DevOps & Testing
-- Full test pyramid implementation
-- Chaos engineering with Toxiproxy
-- GitOps with Argo CD
-- Progressive delivery (canary deployments)
-- Metrics-driven testing
+### Testing & Operations
+- **Test Pyramid**: Unit → Integration → E2E → Chaos → Security
+- **Chaos Engineering**: Toxiproxy-based failure injection
+- **GitOps**: Declarative infrastructure with Argo CD
+- **Progressive Delivery**: Canary deployments with automatic rollback
+- **Observability**: Prometheus metrics + Grafana dashboards
 
 ## 📝 Documentation
 
-- **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - ⭐ START HERE - Complete project overview
-- **[TEST_STRATEGY.md](./TEST_STRATEGY.md)** - Testing approach (unit → chaos → security)
-- **[SECURITY_TESTING.md](./docs/SECURITY_TESTING.md)** - OWASP security testing guide
-- **[ARA_STRATEGY.md](./docs/ARA_STRATEGY.md)** - Application Release Automation
-- **[QUICK_START.md](./QUICK_START.md)** - How to run locally
-- [docs/sprints/sprint-1.md](./docs/sprints/sprint-1.md) - Sprint 1 notes
+- **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - ⭐ Complete system overview and architecture
+- **[SECURITY_TESTING.md](./docs/SECURITY_TESTING.md)** - OWASP security testing approach
+- **[ARA_STRATEGY.md](./docs/ARA_STRATEGY.md)** - Application Release Automation strategy
+- **[QUICK_START.md](./QUICK_START.md)** - Local development setup guide
+- [docs/sprints/](./docs/sprints/) - Development sprint documentation
 
-## 🔧 Development Status
+## 🔧 System Status
 
-- [x] Phase 1: Transaction service core ✅ COMPLETE
-- [x] Phase 2: Event-driven architecture & saga pattern ✅ COMPLETE
-- [x] Phase 3: Bank simulator, gRPC, ISO 8583 ✅ COMPLETE  
-- [x] Phase 4: All 8 services, saga choreography, ISO 20022 ✅ COMPLETE
-- [ ] Phase 5: Testing excellence & resilience (Optional - chaos, load, security)
-- [ ] Phase 6: Frontend, K8s, Argo CD (Optional - polish)
+- [x] **Core Platform**: Transaction service with clean architecture ✅
+- [x] **Event-Driven Architecture**: Kafka-based saga pattern ✅
+- [x] **Bank Integration**: gRPC bank simulator with ISO 8583 ✅  
+- [x] **Complete System**: All 8 services operational with ISO 20022 settlement ✅
+- [x] **Testing Infrastructure**: Unit, Integration, Chaos, Security testing ✅
+- [x] **CI/CD Pipeline**: Automated builds, tests, and security scans ✅
+- [ ] **Advanced Features**: Frontend dashboard, Kubernetes deployment (Roadmap)
 
 ## 📄 License
 
-MIT License - This is a portfolio/learning project
+MIT License
 
 ## 🤝 Contributing
 
-This is a personal portfolio project, but feedback and suggestions are welcome via issues.
+Contributions, issues, and feature requests are welcome. Feel free to check the [issues page](../../issues).
 
 ---
 
-**Built by**: [Your Name]
-**Target Role**: Software Engineer I / SDET (Payments)
-**Last Updated**: Phase 1 - Sprint 1
+**Last Updated**: January 2024
