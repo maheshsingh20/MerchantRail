@@ -1,0 +1,93 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Lint - Checkstyle
+      run: mvn checkstyle:check || true
+    
+    - name: Build with Maven
+      run: mvn clean compile -B
+    
+    - name: Run unit tests
+      run: mvn test -B
+    
+    - name: Run integration tests
+      run: mvn verify -B
+    
+    - name: Generate JaCoCo coverage report
+      run: mvn jacoco:report
+    
+    - name: Check coverage gate
+      run: mvn jacoco:check || true
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./target/site/jacoco/jacoco.xml
+        flags: unittests
+        name: codecov-umbrella
+    
+    - name: Run OWASP Dependency Check
+      run: mvn org.owasp:dependency-check-maven:check || true
+    
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          **/target/surefire-reports/
+          **/target/failsafe-reports/
+    
+    - name: Archive coverage reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-reports
+        path: |
+          **/target/site/jacoco/
+
+  docker-build:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t merchantrail/transaction-service:${{ github.sha }} ./transaction-service
+        docker build -t merchantrail/transaction-service:latest ./transaction-service
+    
+    - name: Save Docker image
+      run: docker save merchantrail/transaction-service:latest -o transaction-service.tar
+    
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: transaction-service.tar
