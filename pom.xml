@@ -48,6 +48,7 @@
     <modules>
         <module>shared-kernel</module>
         <module>transaction-service</module>
+        <module>fraud-service</module>
     </modules>
 
     <dependencyManagement>
