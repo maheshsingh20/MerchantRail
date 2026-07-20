@@ -188,6 +188,8 @@ curl -X POST http://localhost:8080/api/v1/transactions \
 2. **README.md** - Architecture overview, system diagram
 3. **TEST_STRATEGY.md** - Test pyramid explained with examples
 4. **QUICK_START.md** - How to run locally (step-by-step)
+5. **SECURITY_TESTING.md** - OWASP security testing guide
+6. **ARA_STRATEGY.md** - Application Release Automation strategy
 
 ---
 

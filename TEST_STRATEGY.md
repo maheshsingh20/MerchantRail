@@ -389,6 +389,93 @@ setUp(
 
 ### 9. Security Tests
 
+#### OWASP Dependency-Check
+```bash
+mvn org.owasp:dependency-check-maven:check
+```
+
+**Checks**: Known CVEs in dependencies (Spring Boot, Kafka clients, etc.).
+
+**CI Gate**: Pipeline fails if high-severity vulnerabilities found.
+
+#### OWASP ZAP Baseline Scan
+```bash
+docker run -v $(pwd):/zap/wrk:rw owasp/zap2docker-stable \
+  zap-baseline.py -t http://host.docker.internal:8080 -r zap-report.html
+```
+
+**Checks**: XSS, SQL injection, insecure headers, CSRF vulnerabilities.
+
+---
+
+### 10. Chaos Engineering Tests (NEW)
+
+**Tool**: Toxiproxy (network fault injection)
+
+**Scenarios**:
+
+#### Test 1: Database Latency Handling
+```java
+@Test
+void shouldHandleDatabaseLatencyGracefully() {
+    // Inject 2s latency to database
+    proxy.toxics().latency("db-latency", ToxicDirection.DOWNSTREAM, 2000);
+    
+    Transaction result = submitTransactionUseCase.execute(command);
+    
+    assertThat(result).isNotNull();
+    assertThat(result.getStatus()).isEqualTo(TransactionStatus.PENDING);
+}
+```
+
+#### Test 2: Network Partition Recovery
+```java
+@Test
+void idempotencyShouldWorkWithRetriesAfterNetworkFailure() {
+    Transaction first = submitTransactionUseCase.execute(command);
+    
+    // Simulate connection reset
+    proxy.toxics().resetPeer("reset", ToxicDirection.DOWNSTREAM, 1000);
+    
+    // Retry with same idempotency key
+    Transaction retry = submitTransactionUseCase.execute(command);
+    
+    // Should return same transaction (idempotency preserved)
+    assertThat(retry.getTransactionId()).isEqualTo(first.getTransactionId());
+}
+```
+
+#### Test 3: Timeout Behavior
+```java
+@Test
+void shouldTimeoutOnExcessiveDatabaseLatency() {
+    // Inject 30s latency (exceeds timeout)
+    proxy.toxics().latency("extreme-latency", ToxicDirection.DOWNSTREAM, 30000);
+    
+    assertThatThrownBy(() -> submitTransactionUseCase.execute(command))
+        .isInstanceOf(RuntimeException.class);
+}
+```
+
+#### Test 4: Network Jitter Resilience
+```java
+@Test
+void shouldMaintainConsistencyUnderNetworkJitter() {
+    // Add random latency (jitter)
+    proxy.toxics().latency("jitter", ToxicDirection.DOWNSTREAM, 500).setJitter(300);
+    
+    // Submit 5 transactions under jitter
+    for (int i = 0; i < 5; i++) {
+        Transaction result = submitTransactionUseCase.execute(command);
+        assertThat(result.getStatus()).isEqualTo(TransactionStatus.PENDING);
+    }
+}
+```
+
+**Why**: Validates saga compensation logic works under real failure conditions (not just happy path).
+
+---
+
 #### OWASP ZAP Baseline Scan
 ```bash
 docker run -v $(pwd):/zap/wrk:rw \
