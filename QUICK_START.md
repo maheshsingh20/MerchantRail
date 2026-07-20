@@ -250,9 +250,9 @@ merchantrail/
 
 ## Next Steps
 
-1. Review [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for architecture details
+1. Review [PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md) for complete overview ⭐
 2. Review [TEST_STRATEGY.md](./TEST_STRATEGY.md) for testing approach
-3. Check [PROJECT_STATUS.md](./PROJECT_STATUS.md) for implementation progress
+3. Review [README.md](./README.md) for architecture details
 4. Explore the code starting with domain layers (zero framework dependencies)
 
 ## Useful Commands

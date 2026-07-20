@@ -180,10 +180,10 @@ Focus: transaction-service core implementation with clean architecture
 
 ## 📝 Documentation
 
-- [TEST_STRATEGY.md](./TEST_STRATEGY.md) - Comprehensive testing approach
-- [docs/architecture/](./docs/architecture/) - Architecture decision records
-- [docs/sprints/](./docs/sprints/) - Sprint summaries and retrospectives
-- [docs/protocols/](./docs/protocols/) - ISO 8583 & ISO 20022 implementation notes
+- **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - ⭐ START HERE - Complete project overview
+- **[TEST_STRATEGY.md](./TEST_STRATEGY.md)** - Testing approach and pyramid
+- **[QUICK_START.md](./QUICK_START.md)** - How to run locally
+- [docs/sprints/sprint-1.md](./docs/sprints/sprint-1.md) - Sprint 1 notes
 
 ## 🔧 Development Status
 
