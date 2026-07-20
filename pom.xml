@@ -49,6 +49,12 @@
         <module>shared-kernel</module>
         <module>transaction-service</module>
         <module>fraud-service</module>
+        <module>bank-simulator-service</module>
+        <module>ledger-service</module>
+        <module>merchant-service</module>
+        <module>auth-service</module>
+        <module>notification-service</module>
+        <module>api-gateway</module>
     </modules>
 
     <dependencyManagement>
