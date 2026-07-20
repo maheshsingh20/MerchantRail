@@ -86,7 +86,12 @@
 ### Services Implemented
 - ✅ transaction-service (REST, Kafka, Redis, Postgres)
 - ✅ fraud-service (Kafka consumer/producer, rule engine)
-- ⏳ 6 more services to build
+- ✅ bank-simulator-service (gRPC, ISO 8583)
+- ✅ ledger-service (double-entry, ISO 20022 XML, SFTP)
+- ✅ merchant-service (onboarding, API keys)
+- ✅ auth-service (JWT, RBAC)
+- ✅ notification-service (webhooks)
+- ✅ api-gateway (Spring Cloud Gateway, rate limiting)
 
 ## 🎯 Next Immediate Steps
 

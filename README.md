@@ -189,10 +189,10 @@ Focus: transaction-service core implementation with clean architecture
 
 - [x] Phase 1: Transaction service core ✅ COMPLETE
 - [x] Phase 2: Event-driven architecture & saga pattern ✅ COMPLETE
-- [x] Phase 3: Bank simulator, gRPC, ISO 8583 ✅ COMPLETE
-- [ ] Phase 4: Ledger service, settlement, remaining services (In Progress)
-- [ ] Phase 5: Testing excellence & resilience
-- [ ] Phase 6: Frontend, release automation & documentation
+- [x] Phase 3: Bank simulator, gRPC, ISO 8583 ✅ COMPLETE  
+- [x] Phase 4: All 8 services, saga choreography, ISO 20022 ✅ COMPLETE
+- [ ] Phase 5: Testing excellence & resilience (Optional - chaos, load, security)
+- [ ] Phase 6: Frontend, K8s, Argo CD (Optional - polish)
 
 ## 📄 License
 
