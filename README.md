@@ -181,7 +181,9 @@ Focus: transaction-service core implementation with clean architecture
 ## 📝 Documentation
 
 - **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - ⭐ START HERE - Complete project overview
-- **[TEST_STRATEGY.md](./TEST_STRATEGY.md)** - Testing approach and pyramid
+- **[TEST_STRATEGY.md](./TEST_STRATEGY.md)** - Testing approach (unit → chaos → security)
+- **[SECURITY_TESTING.md](./docs/SECURITY_TESTING.md)** - OWASP security testing guide
+- **[ARA_STRATEGY.md](./docs/ARA_STRATEGY.md)** - Application Release Automation
 - **[QUICK_START.md](./QUICK_START.md)** - How to run locally
 - [docs/sprints/sprint-1.md](./docs/sprints/sprint-1.md) - Sprint 1 notes
 
