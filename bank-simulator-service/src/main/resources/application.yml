@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: bank-simulator-service
+
+grpc:
+  server:
+    port: 9090
+
+server:
+  port: ${PORT:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    dev.merchantrail: DEBUG
