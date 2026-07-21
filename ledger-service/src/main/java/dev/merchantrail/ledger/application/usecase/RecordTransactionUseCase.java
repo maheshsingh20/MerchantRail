@@ -32,8 +32,8 @@ public class RecordTransactionUseCase {
         log.info("Recording transaction {} in ledger", command.transactionId());
         
         // Convert to value objects
-        TransactionId transactionId = new TransactionId(command.transactionId());
-        MerchantId merchantId = new MerchantId(command.merchantId());
+        TransactionId transactionId = TransactionId.of(command.transactionId());
+        MerchantId merchantId = MerchantId.of(command.merchantId());
         Money amount = Money.of(command.amount(), command.currency());
         
         // Double-entry: Debit merchant liability, Credit bank asset

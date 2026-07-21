@@ -21,7 +21,7 @@ public class LedgerRepositoryImpl implements LedgerRepository {
     
     @Override
     public LedgerEntry save(LedgerEntry entry) {
-        entries.computeIfAbsent(entry.getTransactionId(), k -> new ArrayList<>()).add(entry);
+        entries.computeIfAbsent(entry.getTransactionId().getValue(), k -> new ArrayList<>()).add(entry);
         return entry;
     }
     
