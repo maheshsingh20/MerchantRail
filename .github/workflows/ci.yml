@@ -14,24 +14,57 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Clear Maven cache
-      run: rm -rf ~/.m2/repository
+    - name: Clear Maven cache completely
+      run: |
+        rm -rf ~/.m2/repository
+        rm -rf ~/.m2/wrapper
     
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: maven
+        # Temporarily disable cache to force fresh downloads
     
-    - name: Build with Maven
-      run: mvn clean compile -B -U
+    - name: Create Maven settings.xml
+      run: |
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml <<EOF
+        <settings>
+          <mirrors>
+            <mirror>
+              <id>central-mirror</id>
+              <mirrorOf>*</mirrorOf>
+              <url>https://repo.maven.apache.org/maven2</url>
+            </mirror>
+          </mirrors>
+          <profiles>
+            <profile>
+              <id>default</id>
+              <repositories>
+                <repository>
+                  <id>central</id>
+                  <url>https://repo.maven.apache.org/maven2</url>
+                  <releases><enabled>true</enabled></releases>
+                  <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+              </repositories>
+            </profile>
+          </profiles>
+          <activeProfiles>
+            <activeProfile>default</activeProfile>
+          </activeProfiles>
+        </settings>
+        EOF
+    
+    - name: Build with Maven (force clean download)
+      run: mvn clean compile -B -U -Dmaven.repo.local=.m2/repository
     
     - name: Run unit tests
-      run: mvn test -B
+      run: mvn test -B -Dmaven.repo.local=.m2/repository
     
     - name: Generate JaCoCo coverage report
-      run: mvn jacoco:report -B
+      run: mvn jacoco:report -B -Dmaven.repo.local=.m2/repository
       continue-on-error: true
     
     - name: Archive test results
