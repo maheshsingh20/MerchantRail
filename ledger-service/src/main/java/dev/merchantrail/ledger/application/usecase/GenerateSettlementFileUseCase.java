@@ -5,6 +5,7 @@ import dev.merchantrail.ledger.application.port.out.SftpClient;
 import dev.merchantrail.ledger.domain.LedgerEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Generates nightly settlement file in ISO 20022 XML format and uploads via SFTP.
  */
+@Service
 public class GenerateSettlementFileUseCase {
     
     private static final Logger log = LoggerFactory.getLogger(GenerateSettlementFileUseCase.class);
@@ -28,26 +30,27 @@ public class GenerateSettlementFileUseCase {
     public void execute() {
         log.info("Starting settlement file generation");
         
-        // Get all settled entries from yesterday
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        List<LedgerEntry> settledEntries = ledgerRepository.findSettledByDate(yesterday);
+        // Get all unsettled entries
+        List<LedgerEntry> unsettledEntries = ledgerRepository.findUnsettledEntries();
         
-        if (settledEntries.isEmpty()) {
-            log.info("No settled entries found for {}", yesterday);
+        if (unsettledEntries.isEmpty()) {
+            log.info("No unsettled entries found");
             return;
         }
         
+        LocalDate today = LocalDate.now();
+        
         // Generate ISO 20022 XML
-        String xml = generateIso20022Xml(settledEntries, yesterday);
+        String xml = generateIso20022Xml(unsettledEntries, today);
         
         // Upload via SFTP
         String filename = String.format("settlement_%s.xml", 
-            yesterday.format(DateTimeFormatter.BASIC_ISO_DATE));
+            today.format(DateTimeFormatter.BASIC_ISO_DATE));
         
-        sftpClient.upload(filename, xml.getBytes());
+        sftpClient.uploadFile(filename, xml.getBytes());
         
         log.info("Generated and uploaded settlement file: {}, {} entries", 
-            filename, settledEntries.size());
+            filename, unsettledEntries.size());
     }
     
     private String generateIso20022Xml(List<LedgerEntry> entries, LocalDate date) {
@@ -73,17 +76,17 @@ public class GenerateSettlementFileUseCase {
             xml.append("      <PmtMtd>TRF</PmtMtd>\n");
             xml.append("      <ReqdExctnDt>").append(date.plusDays(1)).append("</ReqdExctnDt>\n");
             xml.append("      <Dbtr>\n");
-            xml.append("        <Nm>").append(entry.getMerchantId()).append("</Nm>\n");
+            xml.append("        <Nm>").append(entry.getMerchantId().getValue()).append("</Nm>\n");
             xml.append("      </Dbtr>\n");
             xml.append("      <DbtrAcct>\n");
             xml.append("        <Id><Othr><Id>").append(entry.getAccount()).append("</Id></Othr></Id>\n");
             xml.append("      </DbtrAcct>\n");
             xml.append("      <CdtTrfTxInf>\n");
             xml.append("        <PmtId>\n");
-            xml.append("          <EndToEndId>").append(entry.getTransactionId()).append("</EndToEndId>\n");
+            xml.append("          <EndToEndId>").append(entry.getTransactionId().getValue()).append("</EndToEndId>\n");
             xml.append("        </PmtId>\n");
             xml.append("        <Amt>\n");
-            xml.append("          <InstdAmt Ccy=\"").append(entry.getAmount().getCurrencyCode()).append("\">")
+            xml.append("          <InstdAmt Ccy=\"").append(entry.getAmount().getCurrency()).append("\">")
                 .append(entry.getAmount().getAmount()).append("</InstdAmt>\n");
             xml.append("        </Amt>\n");
             xml.append("      </CdtTrfTxInf>\n");
@@ -96,3 +99,4 @@ public class GenerateSettlementFileUseCase {
         return xml.toString();
     }
 }
+

@@ -3,14 +3,19 @@ package dev.merchantrail.ledger.application.usecase;
 import dev.merchantrail.ledger.application.port.in.RecordTransactionCommand;
 import dev.merchantrail.ledger.application.port.out.LedgerRepository;
 import dev.merchantrail.ledger.domain.LedgerEntry;
+import dev.merchantrail.shared.MerchantId;
+import dev.merchantrail.shared.Money;
+import dev.merchantrail.shared.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Records transaction as double-entry: debit merchant liability, credit bank asset.
  */
+@Service
 public class RecordTransactionUseCase {
     
     private static final Logger log = LoggerFactory.getLogger(RecordTransactionUseCase.class);
@@ -26,25 +31,32 @@ public class RecordTransactionUseCase {
     public void execute(RecordTransactionCommand command) {
         log.info("Recording transaction {} in ledger", command.transactionId());
         
+        // Convert to value objects
+        TransactionId transactionId = new TransactionId(command.transactionId());
+        MerchantId merchantId = new MerchantId(command.merchantId());
+        Money amount = Money.of(command.amount(), command.currency());
+        
         // Double-entry: Debit merchant liability, Credit bank asset
         LedgerEntry debit = LedgerEntry.createDebit(
-            command.transactionId(),
-            command.merchantId(),
-            command.amount(),
+            transactionId,
+            merchantId,
+            amount,
             MERCHANT_LIABILITY_ACCOUNT
         );
         
         LedgerEntry credit = LedgerEntry.createCredit(
-            command.transactionId(),
-            command.merchantId(),
-            command.amount(),
+            transactionId,
+            merchantId,
+            amount,
             BANK_ASSET_ACCOUNT
         );
         
-        // Save both entries atomically
-        ledgerRepository.saveAll(List.of(debit, credit));
+        // Save both entries
+        ledgerRepository.save(debit);
+        ledgerRepository.save(credit);
         
         log.info("Recorded ledger entries for transaction {}: debit={}, credit={}",
             command.transactionId(), debit.getEntryId(), credit.getEntryId());
     }
 }
+
