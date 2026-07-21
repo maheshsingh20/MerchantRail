@@ -53,13 +53,14 @@ MerchantRail is a **production-ready payment processing platform** that handles 
 
 | Metric | Value |
 |--------|-------|
-| **Total Services** | 8 microservices |
-| **Lines of Code** | ~12,000+ |
+| **Total Services** | 8 microservices + React frontend |
+| **Lines of Code** | ~15,000+ (backend + frontend) |
 | **Test Coverage** | >85% (domain/application) |
-| **Total Tests** | 100+ (unit, integration, chaos) |
+| **Total Tests** | 130+ (unit, integration, chaos, load, contract) |
 | **Protocols** | REST, gRPC, Kafka, WebSocket, SFTP |
 | **Payment Standards** | ISO 8583, ISO 20022 |
 | **Documentation** | 7 comprehensive guides |
+| **Frontend** | React + TypeScript + Tailwind CSS |
 
 ### Core Capabilities
 
@@ -266,10 +267,11 @@ Infrastructure Layer:
 
 ## 📦 Services
 
-### All 8 Microservices
+### All 8 Microservices + Frontend
 
 | Service | Port | Tech Stack | Responsibilities |
 |---------|------|-----------|------------------|
+| **frontend** 🎨 | 3000 | React + TypeScript + Tailwind | Admin dashboard, real-time monitoring, transaction management, charts |
 | **api-gateway** | 8080 | Spring Cloud Gateway | Single entry point, rate limiting (20 req/sec), routing, JWT validation |
 | **auth-service** | 8086 | Spring Boot + JWT | Authentication, token generation, RBAC (MERCHANT/ADMIN/BANK) |
 | **merchant-service** | 8083 | Spring Boot + JPA | Merchant onboarding, API key management, profile management |
@@ -279,13 +281,34 @@ Infrastructure Layer:
 | **ledger-service** | 8085 | Spring Boot + JPA + SFTP | Double-entry bookkeeping, settlement file generation, reconciliation |
 | **notification-service** | 8087 | Spring Boot + Kafka | Webhook callbacks, retry logic, notification audit trail |
 
+### Frontend Dashboard Features
+
+**🎯 Real-time Transaction Monitoring**
+- Live transaction feed with WebSocket updates
+- Interactive charts (Recharts): trends, status distribution, merchant analytics
+- Transaction search, filter, and pagination
+- Detailed transaction view with full audit trail
+
+**💼 Merchant Portal**
+- Transaction history and statistics
+- API key management
+- Success rate and volume metrics
+- Responsive mobile-first design (Tailwind CSS)
+
+**⚡ Technical Highlights**
+- React 18 with TypeScript for type safety
+- React Query for efficient API data fetching
+- Socket.io for real-time WebSocket connection
+- Tailwind CSS for modern, responsive UI
+- Dockerized with nginx for production deployment
+
 ### Communication Protocols
 
 ```
-REST/HTTPS    → Client ↔ API Gateway, inter-service queries
+REST/HTTPS    → Client ↔ API Gateway, inter-service queries, Frontend ↔ Backend
 gRPC          → transaction-service ↔ bank-simulator (high-performance RPC)
 Kafka Events  → Asynchronous saga choreography (all services)
-WebSocket     → Real-time transaction status updates (transaction-service)
+WebSocket     → Real-time transaction status updates (transaction-service ↔ frontend)
 SFTP          → Settlement file delivery (ledger-service → bank)
 ```
 
@@ -574,7 +597,12 @@ auth-service        → auth_db (PostgreSQL)
 | **Docker Compose** | 2.0+ | Included with Docker Desktop |
 | **Git** | 2.0+ | [Git SCM](https://git-scm.com/) |
 
-**Note**: No frontend framework required - this is a backend-focused project demonstrating microservices and API development.
+**For Frontend Development**:
+
+| Tool | Version | Download |
+|------|---------|----------|
+| **Node.js** | 18+ | [Node.js](https://nodejs.org/) |
+| **npm** | 9+ | Included with Node.js |
 
 **Verify Installation**:
 ```bash
@@ -620,38 +648,40 @@ mvn clean install
 
 #### 4. Run Services
 
-**Option A: Run All 8 Services** (8 terminals):
+**Option A: Docker Compose (Recommended - includes frontend)**:
 ```bash
-# Terminal 1
-cd api-gateway && mvn spring-boot:run
-
-# Terminal 2
-cd auth-service && mvn spring-boot:run
-
-# Terminal 3
-cd merchant-service && mvn spring-boot:run
-
-# Terminal 4
-cd transaction-service && mvn spring-boot:run
-
-# Terminal 5
-cd fraud-service && mvn spring-boot:run
-
-# Terminal 6
-cd bank-simulator-service && mvn spring-boot:run
-
-# Terminal 7
-cd ledger-service && mvn spring-boot:run
-
-# Terminal 8
-cd notification-service && mvn spring-boot:run
+docker-compose up -d
 ```
 
-**Option B: Run Core Services Only** (3 terminals - minimal setup):
+**Access**:
+- Frontend Dashboard: http://localhost:3000
+- API Gateway: http://localhost:8080
+- Transaction Service: http://localhost:8081
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000 (Note: port conflict with frontend in dev)
+
+**Option B: Run All 8 Services + Frontend** (9 terminals):
+```bash
+# Backend Services (Terminals 1-8)
+cd api-gateway && mvn spring-boot:run
+cd auth-service && mvn spring-boot:run
+cd merchant-service && mvn spring-boot:run
+cd transaction-service && mvn spring-boot:run
+cd fraud-service && mvn spring-boot:run
+cd bank-simulator-service && mvn spring-boot:run
+cd ledger-service && mvn spring-boot:run
+cd notification-service && mvn spring-boot:run
+
+# Frontend (Terminal 9)
+cd frontend && npm install && npm start
+```
+
+**Option C: Run Core Services Only** (4 terminals - minimal setup):
 ```bash
 cd transaction-service && mvn spring-boot:run      # Core
 cd fraud-service && mvn spring-boot:run            # Fraud detection
 cd bank-simulator-service && mvn spring-boot:run   # Bank
+cd frontend && npm install && npm start            # Dashboard
 ```
 
 **Wait for startup**: Each service takes ~10-15 seconds. Look for:
@@ -659,7 +689,17 @@ cd bank-simulator-service && mvn spring-boot:run   # Bank
 Started Application in X seconds
 ```
 
+Frontend will be available at: http://localhost:3000
+
 #### 5. Test the System
+
+**Via Frontend Dashboard**:
+1. Open http://localhost:3000
+2. View real-time transaction feed
+3. Browse transaction history
+4. Monitor system statistics
+
+**Via API**:
 
 **Submit a Transaction**:
 ```bash
@@ -971,7 +1011,10 @@ if ("00".equals(response.getResponseCode())) {
 | **BDD Tests** | Spock (Groovy) | 12+ | 100% (fraud rules) | <5 seconds |
 | **Integration Tests** | Testcontainers | 15+ | Adapter layer | ~2 minutes |
 | **API Tests** | REST Assured | 8+ | E2E flows | ~30 seconds |
-| **Chaos Tests** | Toxiproxy | 4+ | Saga compensation | ~1 minute |
+| **Chaos Tests** | Toxiproxy | 20+ | Resilience validation | ~3 minutes |
+| **Load Tests** | Gatling | 3 simulations | Performance benchmarks | ~5 minutes |
+| **Contract Tests** | Spring Cloud Contract | 3+ | API contracts | ~1 minute |
+| **Protocol Tests** | E2E | 4 protocols | REST/gRPC/WS/SFTP | ~2 minutes |
 | **Security Tests** | OWASP ZAP | CI/CD | Vulnerabilities | ~5 minutes |
 
 ### Key Testing Principles
@@ -979,7 +1022,10 @@ if ("00".equals(response.getResponseCode())) {
 ✅ **Fast Feedback** - Unit tests complete in seconds  
 ✅ **Real Infrastructure** - Testcontainers uses actual Postgres/Kafka/Redis (not H2/mocks)  
 ✅ **No Mocks in Integration** - Test real adapter implementations  
-✅ **Chaos Validation** - Saga compensation proven under network failures  
+✅ **Chaos Engineering** - Validates saga compensation, circuit breakers, resilience patterns  
+✅ **Performance Validation** - Gatling load tests with 500+ concurrent users  
+✅ **Contract Testing** - Spring Cloud Contract ensures API compatibility  
+✅ **Protocol Coverage** - All integration protocols tested (REST, gRPC, WebSocket, SFTP)  
 ✅ **Coverage Enforcement** - JaCoCo enforces >80% on business logic  
 
 ### Example Tests
@@ -1056,6 +1102,76 @@ void whenBankTimesOut_sagaReversesTransaction() {
     List<LedgerEntry> entries = ledgerRepository.findByTransactionId(txnId);
     assertEquals(4, entries.size()); // 2 original + 2 reversal
 }
+```
+
+**Load Test (Gatling)**:
+```scala
+class TransactionLoadSimulation extends Simulation {
+  
+  val httpProtocol = http.baseUrl("http://localhost:8081")
+  
+  val scn = scenario("Submit Transactions")
+    .exec(http("Submit Transaction")
+      .post("/api/v1/transactions")
+      .body(StringBody("""{ "merchantId": "M123", "amount": 99.99 }"""))
+      .check(status.is(201)))
+  
+  setUp(
+    scn.inject(
+      rampUsers(500).during(60.seconds)  // Ramp to 500 concurrent users
+    )
+  ).protocols(httpProtocol)
+   .assertions(
+     global.responseTime.percentile(95).lt(500),  // p95 < 500ms
+     global.successfulRequests.percent.gt(99)     // >99% success
+   )
+}
+```
+
+**Contract Test (Spring Cloud Contract)**:
+```groovy
+Contract.make {
+    description "Should accept a valid transaction submission"
+    
+    request {
+        method POST()
+        url "/api/v1/transactions"
+        body([
+            merchantId: "MERCHANT_12345",
+            amount: 99.99,
+            currency: "USD"
+        ])
+    }
+    
+    response {
+        status 201
+        body([
+            transactionId: $(consumer(~/.+/), producer("TX_123")),
+            status: "PENDING"
+        ])
+    }
+}
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+mvn clean verify
+
+# Run specific test categories
+mvn test                                    # Unit tests only
+mvn verify -Dtest=*IT                       # Integration tests
+mvn verify -Dtest=*ChaosTest                # Chaos tests
+mvn gatling:test                            # Load tests
+mvn verify -Dtest=ContractTest              # Contract tests
+
+# Run with coverage
+mvn verify jacoco:report
+
+# Run security scans
+mvn dependency-check:check                  # Dependency vulnerabilities
+docker run -t owasp/zap2docker-stable zap-api-scan.py -t http://localhost:8081/api
 ```
 
 📖 **Comprehensive testing guide**: [TEST_STRATEGY.md](./TEST_STRATEGY.md)
@@ -1393,7 +1509,7 @@ merchantrail/
 
 ## 🗺️ Roadmap
 
-### ✅ Completed Features (Phase 1-4)
+### ✅ Completed Features (Phase 1-6)
 
 - [x] **Shared Kernel** - Money, TransactionId, MerchantId value objects
 - [x] **Transaction Service** - Clean architecture, idempotency, saga coordinator
@@ -1411,24 +1527,32 @@ merchantrail/
 - [x] **Observability** - Prometheus + Grafana
 - [x] **Documentation** - 7 comprehensive guides
 
+**Phase 5: Advanced Testing ✅ COMPLETED**
+- [x] **Chaos Engineering** - Toxiproxy tests (database latency, Redis partition, Kafka failures)
+- [x] **Saga Compensation** - Chaos validation of distributed transaction rollback
+- [x] **Circuit Breaker** - Resilience4j chaos testing under failure scenarios
+- [x] **Load Testing** - Gatling simulations (500+ concurrent users, spike tests)
+- [x] **Contract Testing** - Spring Cloud Contract (REST API contracts)
+- [x] **E2E Protocol Tests** - REST, gRPC, WebSocket, SFTP validation
+
+**Phase 6: Frontend Dashboard ✅ COMPLETED**
+- [x] **React + TypeScript** - Modern frontend with type safety
+- [x] **Real-time Dashboard** - Transaction monitoring with live updates
+- [x] **WebSocket Integration** - Socket.io for real-time transaction feeds
+- [x] **Interactive Charts** - Recharts visualizations (trends, status distribution)
+- [x] **Transaction Management** - List, filter, search with pagination
+- [x] **Responsive UI** - Tailwind CSS mobile-first design
+- [x] **Docker Configuration** - Multi-stage build with nginx
+- [x] **Production Ready** - Health checks, API proxy, security headers
+
 ### 🔄 Future Enhancements (Optional)
 
-**Phase 5: Advanced Testing**
-- [ ] Full chaos testing suite with Toxiproxy
-- [ ] Load testing with Gatling (performance benchmarks)
-- [ ] Contract testing with Spring Cloud Contract
-- [ ] Mutation testing with PIT
-- [ ] End-to-end protocol tests (SFTP, gRPC)
-
-**Phase 6: Frontend & Production Features**
-- [ ] React + TypeScript admin dashboard (merchant portal)
-- [ ] Real-time transaction monitoring UI (WebSocket)
+**Phase 7: Production Infrastructure**
 - [ ] Kubernetes manifests with Helm charts
 - [ ] Service mesh integration (Istio)
 - [ ] Multi-region deployment configuration
 - [ ] Advanced distributed tracing (Jaeger/Zipkin)
-
-**Note**: Current implementation is backend-focused, demonstrating microservices architecture, event-driven design, and API development. Frontend features are planned for future enhancement.
+- [ ] Mutation testing with PIT
 
 ---
 

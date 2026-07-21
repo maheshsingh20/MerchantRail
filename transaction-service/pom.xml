@@ -114,6 +114,27 @@
             <version>2.1.7</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Spring Cloud Contract for Contract Testing -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Gatling for Load Testing -->
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>3.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- WebSocket for E2E Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -125,6 +146,41 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            
+            <!-- Spring Cloud Contract Plugin -->
+            <plugin>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-contract-maven-plugin</artifactId>
+                <version>4.0.4</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <baseClassForTests>dev.merchantrail.transaction.ContractTestBase</baseClassForTests>
+                </configuration>
+            </plugin>
+            
+            <!-- Gatling Maven Plugin -->
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>4.3.7</version>
+                <configuration>
+                    <simulationClass>dev.merchantrail.transaction.performance.TransactionLoadSimulation</simulationClass>
+                </configuration>
+            </plugin>
+            
+            <!-- Scala Maven Plugin for Gatling -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.8.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

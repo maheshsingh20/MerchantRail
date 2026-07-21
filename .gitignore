@@ -64,11 +64,38 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
 dist/
+build/
+.env
 .env.local
+.env.development
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Frontend specific
+/frontend/build
+/frontend/dist
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/coverage
+/frontend/.cache
+/frontend/.parcel-cache
+/frontend/.next
+/frontend/out
+/frontend/.nuxt
+/frontend/.vuepress/dist
+
+# React
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
 
 # Docker
 .dockerignore
@@ -76,9 +103,27 @@ dist/
 # Test coverage
 *.exec
 .jacoco/
+htmlcov/
+.coverage
+.coverage.*
+coverage/
+*.lcov
+.nyc_output
 
 # Testcontainers
 .testcontainers-node-*
+
+# Gatling (Load Testing)
+**/target/gatling/
+**/results/
+simulation.log
+
+# Chaos Testing
+toxiproxy.log
+
+# Contract Testing
+**/target/stubs/
+**/target/contracts/
 
 # Observability data
 prometheus_data/
@@ -86,3 +131,136 @@ grafana_data/
 
 # SFTP test data
 sftp_test/
+settlement_files/
+
+# Logs
+logs/
+*.log.*
+*.log.gz
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Database files (local development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Security
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+.secrets/
+
+# IDE - Additional
+.project
+.classpath
+.settings/
+.metadata/
+bin/
+tmp/
+
+# MacOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# Backup files
+*~
+*.orig
+*.rej
+
+# JetBrains IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.classpath
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

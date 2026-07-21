@@ -117,6 +117,25 @@ services:
       retries: 3
       start_period: 40s
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: merchantrail-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://transaction-service:8081
+      - REACT_APP_WS_URL=ws://transaction-service:8081
+      - REACT_APP_ENV=production
+    depends_on:
+      - transaction-service
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
 volumes:
   postgres_data:
   redis_data:
