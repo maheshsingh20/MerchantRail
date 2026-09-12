@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ledger-service
+  batch:
+    job:
+      enabled: false # Controlled via scheduler and REST API
+    jdbc:
+      initialize-schema: always
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+server:
+  port: 8085
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always

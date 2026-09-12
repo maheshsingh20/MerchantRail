@@ -24,6 +24,11 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
 
+        - id: ledger-reports-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/v1/reports/**, /api/v1/ledger/**
+
 server:
   port: 8080
 

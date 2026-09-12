@@ -1,5 +1,7 @@
 package dev.merchantrail.transaction.domain;
 
+import dev.merchantrail.shared.CardBrand;
+import dev.merchantrail.shared.CardPan;
 import dev.merchantrail.shared.MerchantId;
 import dev.merchantrail.shared.Money;
 import dev.merchantrail.shared.TransactionId;
@@ -8,8 +10,8 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Domain entity representing a payment transaction.
- * Follows state machine pattern with valid state transitions.
+ * Domain entity representing a payment transaction within the switching network.
+ * Follows state machine pattern with valid state transitions and card switching metadata.
  */
 public class Transaction {
     
@@ -21,11 +23,24 @@ public class Transaction {
     private String statusReason;
     private final Instant createdAt;
     private Instant updatedAt;
+
+    // Switching & Routing Attributes
+    private String maskedPan;
+    private String cardBin;
+    private CardBrand cardBrand;
+    private String routedIssuerId;
+    private boolean isStip;
+    private String authCode;
+    private Money interchangeFee;
+    private Money switchFee;
     
     // Private constructor - use factory methods
     private Transaction(TransactionId transactionId, MerchantId merchantId, Money amount, 
                        IdempotencyKey idempotencyKey, TransactionStatus status, 
-                       String statusReason, Instant createdAt, Instant updatedAt) {
+                       String statusReason, Instant createdAt, Instant updatedAt,
+                       String maskedPan, String cardBin, CardBrand cardBrand,
+                       String routedIssuerId, boolean isStip, String authCode,
+                       Money interchangeFee, Money switchFee) {
         this.transactionId = transactionId;
         this.merchantId = merchantId;
         this.amount = amount;
@@ -34,15 +49,34 @@ public class Transaction {
         this.statusReason = statusReason;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.maskedPan = maskedPan;
+        this.cardBin = cardBin;
+        this.cardBrand = cardBrand;
+        this.routedIssuerId = routedIssuerId;
+        this.isStip = isStip;
+        this.authCode = authCode;
+        this.interchangeFee = interchangeFee;
+        this.switchFee = switchFee;
     }
     
     /**
-     * Creates a new transaction in PENDING status.
+     * Creates a new transaction in PENDING status without card switching details.
      */
     public static Transaction create(MerchantId merchantId, Money amount, IdempotencyKey idempotencyKey) {
+        return create(merchantId, amount, idempotencyKey, null);
+    }
+
+    /**
+     * Creates a new transaction with card PAN and BIN routing details.
+     */
+    public static Transaction create(MerchantId merchantId, Money amount, IdempotencyKey idempotencyKey, CardPan cardPan) {
         validateAmount(amount);
         
         Instant now = Instant.now();
+        String masked = cardPan != null ? cardPan.getMasked() : null;
+        String bin = cardPan != null ? cardPan.getBin() : null;
+        CardBrand brand = cardPan != null ? cardPan.getBrand() : CardBrand.UNKNOWN;
+
         return new Transaction(
             TransactionId.generate(),
             merchantId,
@@ -51,19 +85,43 @@ public class Transaction {
             TransactionStatus.PENDING,
             null,
             now,
-            now
+            now,
+            masked,
+            bin,
+            brand,
+            null,
+            false,
+            null,
+            null,
+            null
         );
     }
     
     /**
-     * Reconstitutes a transaction from persistence.
+     * Reconstitutes a transaction from persistence (legacy).
      */
     public static Transaction reconstitute(TransactionId transactionId, MerchantId merchantId, 
                                           Money amount, IdempotencyKey idempotencyKey,
                                           TransactionStatus status, String statusReason,
                                           Instant createdAt, Instant updatedAt) {
+        return reconstitute(transactionId, merchantId, amount, idempotencyKey, status, statusReason,
+            createdAt, updatedAt, null, null, CardBrand.UNKNOWN, null, false, null, null, null);
+    }
+
+    /**
+     * Reconstitutes a transaction from persistence with switching metadata.
+     */
+    public static Transaction reconstitute(TransactionId transactionId, MerchantId merchantId, 
+                                          Money amount, IdempotencyKey idempotencyKey,
+                                          TransactionStatus status, String statusReason,
+                                          Instant createdAt, Instant updatedAt,
+                                          String maskedPan, String cardBin, CardBrand cardBrand,
+                                          String routedIssuerId, boolean isStip, String authCode,
+                                          Money interchangeFee, Money switchFee) {
         return new Transaction(transactionId, merchantId, amount, idempotencyKey, 
-                             status, statusReason, createdAt, updatedAt);
+                             status, statusReason, createdAt, updatedAt,
+                             maskedPan, cardBin, cardBrand, routedIssuerId, isStip,
+                             authCode, interchangeFee, switchFee);
     }
     
     /**
@@ -78,9 +136,25 @@ public class Transaction {
         this.status = TransactionStatus.APPROVED;
         this.updatedAt = Instant.now();
     }
+
+    /**
+     * Approves the transaction with switching resolution (issuer auth or STIP).
+     */
+    public void approveWithSwitching(String authCode, String routedIssuerId, boolean isStip, 
+                                     Money interchangeFee, Money switchFee) {
+        approve();
+        this.authCode = authCode;
+        this.routedIssuerId = routedIssuerId;
+        this.isStip = isStip;
+        this.interchangeFee = interchangeFee;
+        this.switchFee = switchFee;
+        if (isStip) {
+            this.statusReason = "Approved via Stand-In Processing (STIP) - Issuer SLA timeout";
+        }
+    }
     
     /**
-     * Rejects the transaction (failed fraud check or validation).
+     * Rejects the transaction (failed fraud check, decline, or validation).
      */
     public void reject(String reason) {
         if (status != TransactionStatus.PENDING) {
@@ -192,6 +266,38 @@ public class Transaction {
     
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getMaskedPan() {
+        return maskedPan;
+    }
+
+    public String getCardBin() {
+        return cardBin;
+    }
+
+    public CardBrand getCardBrand() {
+        return cardBrand;
+    }
+
+    public String getRoutedIssuerId() {
+        return routedIssuerId;
+    }
+
+    public boolean isStip() {
+        return isStip;
+    }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public Money getInterchangeFee() {
+        return interchangeFee;
+    }
+
+    public Money getSwitchFee() {
+        return switchFee;
     }
     
     @Override

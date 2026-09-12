@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * Response DTO for transaction endpoints.
+ * Response DTO for transaction endpoints with switching and network routing metadata.
  */
 public class TransactionResponse {
     
@@ -35,6 +35,31 @@ public class TransactionResponse {
     
     @JsonProperty("updatedAt")
     private Instant updatedAt;
+
+    // Switching Attributes
+    @JsonProperty("cardPan")
+    private String cardPan;
+
+    @JsonProperty("cardBin")
+    private String cardBin;
+
+    @JsonProperty("cardBrand")
+    private String cardBrand;
+
+    @JsonProperty("routedIssuerId")
+    private String routedIssuerId;
+
+    @JsonProperty("isStip")
+    private boolean isStip;
+
+    @JsonProperty("authCode")
+    private String authCode;
+
+    @JsonProperty("interchangeFee")
+    private BigDecimal interchangeFee;
+
+    @JsonProperty("switchFee")
+    private BigDecimal switchFee;
     
     public TransactionResponse() {}
     
@@ -48,6 +73,16 @@ public class TransactionResponse {
         response.statusReason = transaction.getStatusReason();
         response.createdAt = transaction.getCreatedAt();
         response.updatedAt = transaction.getUpdatedAt();
+
+        response.cardPan = transaction.getMaskedPan();
+        response.cardBin = transaction.getCardBin();
+        response.cardBrand = transaction.getCardBrand() != null ? transaction.getCardBrand().name() : null;
+        response.routedIssuerId = transaction.getRoutedIssuerId();
+        response.isStip = transaction.isStip();
+        response.authCode = transaction.getAuthCode();
+        response.interchangeFee = transaction.getInterchangeFee() != null ? transaction.getInterchangeFee().getAmount() : null;
+        response.switchFee = transaction.getSwitchFee() != null ? transaction.getSwitchFee().getAmount() : null;
+
         return response;
     }
     
@@ -114,5 +149,69 @@ public class TransactionResponse {
     
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCardPan() {
+        return cardPan;
+    }
+
+    public void setCardPan(String cardPan) {
+        this.cardPan = cardPan;
+    }
+
+    public String getCardBin() {
+        return cardBin;
+    }
+
+    public void setCardBin(String cardBin) {
+        this.cardBin = cardBin;
+    }
+
+    public String getCardBrand() {
+        return cardBrand;
+    }
+
+    public void setCardBrand(String cardBrand) {
+        this.cardBrand = cardBrand;
+    }
+
+    public String getRoutedIssuerId() {
+        return routedIssuerId;
+    }
+
+    public void setRoutedIssuerId(String routedIssuerId) {
+        this.routedIssuerId = routedIssuerId;
+    }
+
+    public boolean isStip() {
+        return isStip;
+    }
+
+    public void setStip(boolean stip) {
+        isStip = stip;
+    }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+
+    public BigDecimal getInterchangeFee() {
+        return interchangeFee;
+    }
+
+    public void setInterchangeFee(BigDecimal interchangeFee) {
+        this.interchangeFee = interchangeFee;
+    }
+
+    public BigDecimal getSwitchFee() {
+        return switchFee;
+    }
+
+    public void setSwitchFee(BigDecimal switchFee) {
+        this.switchFee = switchFee;
     }
 }

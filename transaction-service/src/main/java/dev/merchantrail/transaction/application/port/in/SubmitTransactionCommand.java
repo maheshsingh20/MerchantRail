@@ -1,16 +1,18 @@
 package dev.merchantrail.transaction.application.port.in;
 
+import dev.merchantrail.shared.CardPan;
 import dev.merchantrail.shared.MerchantId;
 import dev.merchantrail.shared.Money;
 import dev.merchantrail.transaction.domain.IdempotencyKey;
 
 /**
- * Command to submit a new transaction.
+ * Command to submit a new transaction into the payment network.
  */
 public record SubmitTransactionCommand(
     MerchantId merchantId,
     Money amount,
-    IdempotencyKey idempotencyKey
+    IdempotencyKey idempotencyKey,
+    CardPan cardPan
 ) {
     public SubmitTransactionCommand {
         if (merchantId == null) {
@@ -22,5 +24,9 @@ public record SubmitTransactionCommand(
         if (idempotencyKey == null) {
             throw new IllegalArgumentException("Idempotency key cannot be null");
         }
+    }
+
+    public SubmitTransactionCommand(MerchantId merchantId, Money amount, IdempotencyKey idempotencyKey) {
+        this(merchantId, amount, idempotencyKey, null);
     }
 }

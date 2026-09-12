@@ -1,0 +1,103 @@
+---
+# ==============================================================================
+# MerchantRail - Pivotal Cloud Foundry (PCF) / VMware Tanzu Application Manifest
+# Production Cloud-Native Deployment for Core Switching & Payment Stream
+# ==============================================================================
+
+default-env: &default-env
+  SPRING_PROFILES_ACTIVE: pcf,cloud
+  JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
+  JAVA_OPTS: '-Djava.security.egd=file:/dev/./urandom -XX:+UseG1GC -XX:MaxRAMPercentage=75.0'
+
+applications:
+  # 1. API Gateway (Edge Switch Routing & Rate Limiting)
+  - name: merchantrail-api-gateway
+    path: ./api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar
+    memory: 1024M
+    disk_quota: 1024M
+    instances: 2
+    buildpacks:
+      - java_buildpack
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    routes:
+      - route: api-gateway-merchantrail.apps.pcf.internal
+    services:
+      - pcf-redis-cache
+    env:
+      <<: *default-env
+      SERVER_PORT: 8080
+
+  # 2. Transaction Service (Card BIN Routing, Switching & STIP Engine)
+  - name: merchantrail-transaction-service
+    path: ./transaction-service/target/transaction-service-1.0.0-SNAPSHOT.jar
+    memory: 1536M
+    disk_quota: 1024M
+    instances: 3
+    buildpacks:
+      - java_buildpack
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    routes:
+      - route: transaction-service-merchantrail.apps.pcf.internal
+    services:
+      - pcf-postgres-db
+      - pcf-redis-cache
+      - pcf-kafka-stream
+    env:
+      <<: *default-env
+      SERVER_PORT: 8081
+
+  # 3. Ledger Service (Spring Batch Clearing & Double-Entry Reconciliation)
+  - name: merchantrail-ledger-service
+    path: ./ledger-service/target/ledger-service-1.0.0-SNAPSHOT.jar
+    memory: 1536M
+    disk_quota: 1024M
+    instances: 2
+    buildpacks:
+      - java_buildpack
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    routes:
+      - route: ledger-service-merchantrail.apps.pcf.internal
+    services:
+      - pcf-postgres-db
+      - pcf-kafka-stream
+    env:
+      <<: *default-env
+      SERVER_PORT: 8085
+
+  # 4. Fraud Service (Real-Time Risk Scoring & Velocity Verification)
+  - name: merchantrail-fraud-service
+    path: ./fraud-service/target/fraud-service-1.0.0-SNAPSHOT.jar
+    memory: 1024M
+    disk_quota: 1024M
+    instances: 2
+    buildpacks:
+      - java_buildpack
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    routes:
+      - route: fraud-service-merchantrail.apps.pcf.internal
+    services:
+      - pcf-redis-cache
+      - pcf-kafka-stream
+    env:
+      <<: *default-env
+      SERVER_PORT: 8082
+
+  # 5. Bank Simulator (Multi-Issuer ISO 8583 Authorization Endpoints)
+  - name: merchantrail-bank-simulator
+    path: ./bank-simulator-service/target/bank-simulator-service-1.0.0-SNAPSHOT.jar
+    memory: 1024M
+    disk_quota: 1024M
+    instances: 2
+    buildpacks:
+      - java_buildpack
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    routes:
+      - route: bank-simulator-merchantrail.apps.pcf.internal
+    env:
+      <<: *default-env
+      SERVER_PORT: 8090

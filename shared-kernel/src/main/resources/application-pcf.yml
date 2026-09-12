@@ -1,0 +1,42 @@
+# ==============================================================================
+# Spring Cloud / Pivotal Cloud Foundry (PCF) Profile Configuration
+# Automatically parses VCAP_SERVICES and VCAP_APPLICATION bindings
+# ==============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: pcf
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: true
+
+# Cloud Foundry Service Bindings
+  datasource:
+    url: ${vcap.services.pcf-postgres-db.credentials.jdbcUrl:${vcap.services.pcf-postgres-db.credentials.uri:jdbc:postgresql://${vcap.services.pcf-postgres-db.credentials.hostname:localhost}:${vcap.services.pcf-postgres-db.credentials.port:5432}/${vcap.services.pcf-postgres-db.credentials.name:merchantrail}}}
+    username: ${vcap.services.pcf-postgres-db.credentials.username:postgres}
+    password: ${vcap.services.pcf-postgres-db.credentials.password:postgres}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 10000
+
+  data:
+    redis:
+      host: ${vcap.services.pcf-redis-cache.credentials.host:${vcap.services.pcf-redis-cache.credentials.hostname:localhost}}
+      port: ${vcap.services.pcf-redis-cache.credentials.port:6379}
+      password: ${vcap.services.pcf-redis-cache.credentials.password:}
+
+  kafka:
+    bootstrap-servers: ${vcap.services.pcf-kafka-stream.credentials.bootstrapServers:localhost:9092}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env
+  cloudfoundry:
+    enabled: true
+    skip-ssl-validation: false

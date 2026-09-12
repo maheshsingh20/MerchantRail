@@ -1,6 +1,7 @@
 package dev.merchantrail.transaction.adapter.in.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.merchantrail.shared.CardPan;
 import dev.merchantrail.shared.MerchantId;
 import dev.merchantrail.shared.Money;
 import dev.merchantrail.transaction.application.port.in.SubmitTransactionCommand;
@@ -12,7 +13,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 /**
- * Request DTO for submitting a transaction.
+ * Request DTO for submitting a transaction into the switching platform.
  */
 public class SubmitTransactionRequest {
     
@@ -32,14 +33,19 @@ public class SubmitTransactionRequest {
     @NotBlank(message = "Idempotency key is required")
     @JsonProperty("idempotencyKey")
     private String idempotencyKey;
+
+    @JsonProperty("cardNumber")
+    private String cardNumber;
     
     public SubmitTransactionRequest() {}
     
     public SubmitTransactionCommand toCommand() {
+        CardPan pan = (cardNumber != null && !cardNumber.isBlank()) ? CardPan.ofUnchecked(cardNumber) : null;
         return new SubmitTransactionCommand(
             MerchantId.of(merchantId),
             Money.of(amount, currency),
-            IdempotencyKey.of(idempotencyKey)
+            IdempotencyKey.of(idempotencyKey),
+            pan
         );
     }
     
@@ -74,5 +80,13 @@ public class SubmitTransactionRequest {
     
     public void setIdempotencyKey(String idempotencyKey) {
         this.idempotencyKey = idempotencyKey;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
 }

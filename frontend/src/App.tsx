@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Dashboard from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transaction/TransactionList';
 import LiveFeed from './components/LiveFeed/LiveFeed';
-import Navbar from './components/Common/Navbar';
+import ReportsView from './components/Reports/ReportsView';
+import Navbar, { Page } from './components/Common/Navbar';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,8 +15,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-type Page = 'dashboard' | 'transactions' | 'live-feed';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -28,6 +27,8 @@ function App() {
         return <TransactionList />;
       case 'live-feed':
         return <LiveFeed />;
+      case 'reports':
+        return <ReportsView />;
       default:
         return <Dashboard />;
     }
@@ -35,7 +36,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -45,16 +46,16 @@ function App() {
         <footer className="bg-white border-t mt-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="text-center text-sm text-gray-500">
-              <p>MerchantRail Payment Gateway © 2026</p>
+              <p className="font-medium text-gray-700">MerchantRail Core Payment & Switching Platform © 2026</p>
               <p className="mt-1">
-                Built with React, TypeScript, and Spring Boot |{' '}
+                Built with Java 17, Spring Boot, Spring Batch, React, and Tanzu/PCF Cloud Native Principles |{' '}
                 <a
                   href="https://github.com/maheshsingh20/merchantrail"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700"
+                  className="text-blue-600 hover:text-blue-700 font-semibold"
                 >
-                  GitHub
+                  GitHub Repository
                 </a>
               </p>
             </div>

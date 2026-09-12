@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Port for ledger persistence operations
+ * Port for ledger persistence operations in double-entry bookkeeping.
  */
 public interface LedgerRepository {
     
@@ -17,4 +17,6 @@ public interface LedgerRepository {
     List<LedgerEntry> findSettlementEntries(LocalDate date);
     
     List<LedgerEntry> findUnsettledEntries();
+
+    List<LedgerEntry> findAll();
 }

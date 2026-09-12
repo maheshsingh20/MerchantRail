@@ -1,4 +1,4 @@
-// Transaction type definitions
+// Transaction & Switching type definitions
 
 export enum TransactionStatus {
   PENDING = 'PENDING',
@@ -18,6 +18,17 @@ export interface Transaction {
   createdAt: string;
   updatedAt: string;
   idempotencyKey?: string;
+  statusReason?: string;
+  
+  // Switching & Network metadata
+  cardPan?: string;
+  cardBin?: string;
+  cardBrand?: string;
+  routedIssuerId?: string;
+  isStip?: boolean;
+  authCode?: string;
+  interchangeFee?: number;
+  switchFee?: number;
 }
 
 export interface TransactionRequest {
@@ -25,6 +36,7 @@ export interface TransactionRequest {
   amount: number;
   currency: string;
   idempotencyKey: string;
+  cardNumber?: string;
 }
 
 export interface TransactionListResponse {
@@ -42,6 +54,26 @@ export interface TransactionStats {
   pendingCount: number;
   approvedCount: number;
   rejectedCount: number;
+}
+
+export interface SettlementSummary {
+  totalEntriesCount: number;
+  settledCount: number;
+  pendingCount: number;
+  totalVolumeUsd: number;
+  totalInterchangeFeesUsd: number;
+  isBalanced: boolean;
+  netImbalanceUsd: number;
+  auditTimestamp: string;
+}
+
+export interface SwitchingAnalytics {
+  totalTransactions: number;
+  mastercardSharePct: number;
+  visaSharePct: number;
+  stipAuthorizationRatePct: number;
+  totalStipTransactions: number;
+  issuerVolumeMap: Record<string, number>;
 }
 
 export interface StatusUpdate {

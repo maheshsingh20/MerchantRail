@@ -10,7 +10,7 @@ import dev.merchantrail.transaction.domain.Transaction;
 import java.util.Optional;
 
 /**
- * Use case for submitting a new transaction with idempotency.
+ * Use case for submitting a new transaction with idempotency and card routing support.
  */
 public class SubmitTransactionUseCase {
     
@@ -43,11 +43,12 @@ public class SubmitTransactionUseCase {
                 ));
         }
         
-        // Create new transaction
+        // Create new transaction with optional card switching attributes
         Transaction transaction = Transaction.create(
             command.merchantId(),
             command.amount(),
-            command.idempotencyKey()
+            command.idempotencyKey(),
+            command.cardPan()
         );
         
         // Persist transaction

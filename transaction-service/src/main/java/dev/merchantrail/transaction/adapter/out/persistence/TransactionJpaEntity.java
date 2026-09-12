@@ -1,5 +1,6 @@
 package dev.merchantrail.transaction.adapter.out.persistence;
 
+import dev.merchantrail.shared.CardBrand;
 import dev.merchantrail.shared.MerchantId;
 import dev.merchantrail.shared.Money;
 import dev.merchantrail.shared.TransactionId;
@@ -12,15 +13,16 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * JPA entity for transaction persistence.
- * Separate from domain entity to maintain clean architecture.
+ * JPA entity for transaction persistence with network switching metadata.
  */
 @Entity
 @Table(name = "transactions", indexes = {
     @Index(name = "idx_merchant_id", columnList = "merchant_id"),
     @Index(name = "idx_idempotency_key", columnList = "idempotency_key", unique = true),
     @Index(name = "idx_status", columnList = "status"),
-    @Index(name = "idx_created_at", columnList = "created_at")
+    @Index(name = "idx_created_at", columnList = "created_at"),
+    @Index(name = "idx_card_bin", columnList = "card_bin"),
+    @Index(name = "idx_is_stip", columnList = "is_stip")
 })
 public class TransactionJpaEntity {
     
@@ -52,6 +54,32 @@ public class TransactionJpaEntity {
     
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    // Switching & Network Columns
+    @Column(name = "card_pan", length = 32)
+    private String cardPan;
+
+    @Column(name = "card_bin", length = 8)
+    private String cardBin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "card_brand", length = 20)
+    private CardBrand cardBrand;
+
+    @Column(name = "routed_issuer_id", length = 50)
+    private String routedIssuerId;
+
+    @Column(name = "is_stip", nullable = false)
+    private boolean isStip = false;
+
+    @Column(name = "auth_code", length = 20)
+    private String authCode;
+
+    @Column(name = "interchange_fee", precision = 19, scale = 4)
+    private BigDecimal interchangeFee;
+
+    @Column(name = "switch_fee", precision = 19, scale = 4)
+    private BigDecimal switchFee;
     
     @Version
     @Column(name = "version")
@@ -74,6 +102,16 @@ public class TransactionJpaEntity {
         entity.statusReason = transaction.getStatusReason();
         entity.createdAt = transaction.getCreatedAt();
         entity.updatedAt = transaction.getUpdatedAt();
+        
+        entity.cardPan = transaction.getMaskedPan();
+        entity.cardBin = transaction.getCardBin();
+        entity.cardBrand = transaction.getCardBrand();
+        entity.routedIssuerId = transaction.getRoutedIssuerId();
+        entity.isStip = transaction.isStip();
+        entity.authCode = transaction.getAuthCode();
+        entity.interchangeFee = transaction.getInterchangeFee() != null ? transaction.getInterchangeFee().getAmount() : null;
+        entity.switchFee = transaction.getSwitchFee() != null ? transaction.getSwitchFee().getAmount() : null;
+
         return entity;
     }
     
@@ -81,6 +119,9 @@ public class TransactionJpaEntity {
      * Converts JPA entity to domain entity.
      */
     public Transaction toDomain() {
+        Money interchange = interchangeFee != null ? Money.of(interchangeFee, currency) : null;
+        Money switchMoney = switchFee != null ? Money.of(switchFee, currency) : null;
+
         return Transaction.reconstitute(
             TransactionId.of(transactionId),
             MerchantId.of(merchantId),
@@ -89,7 +130,15 @@ public class TransactionJpaEntity {
             status,
             statusReason,
             createdAt,
-            updatedAt
+            updatedAt,
+            cardPan,
+            cardBin,
+            cardBrand,
+            routedIssuerId,
+            isStip,
+            authCode,
+            interchange,
+            switchMoney
         );
     }
     
@@ -172,5 +221,69 @@ public class TransactionJpaEntity {
     
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public String getCardPan() {
+        return cardPan;
+    }
+
+    public void setCardPan(String cardPan) {
+        this.cardPan = cardPan;
+    }
+
+    public String getCardBin() {
+        return cardBin;
+    }
+
+    public void setCardBin(String cardBin) {
+        this.cardBin = cardBin;
+    }
+
+    public CardBrand getCardBrand() {
+        return cardBrand;
+    }
+
+    public void setCardBrand(CardBrand cardBrand) {
+        this.cardBrand = cardBrand;
+    }
+
+    public String getRoutedIssuerId() {
+        return routedIssuerId;
+    }
+
+    public void setRoutedIssuerId(String routedIssuerId) {
+        this.routedIssuerId = routedIssuerId;
+    }
+
+    public boolean isStip() {
+        return isStip;
+    }
+
+    public void setStip(boolean stip) {
+        isStip = stip;
+    }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+
+    public BigDecimal getInterchangeFee() {
+        return interchangeFee;
+    }
+
+    public void setInterchangeFee(BigDecimal interchangeFee) {
+        this.interchangeFee = interchangeFee;
+    }
+
+    public BigDecimal getSwitchFee() {
+        return switchFee;
+    }
+
+    public void setSwitchFee(BigDecimal switchFee) {
+        this.switchFee = switchFee;
     }
 }
