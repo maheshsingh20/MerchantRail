@@ -122,15 +122,4 @@ public class LedgerEntry {
     public int hashCode() {
         return Objects.hash(entryId);
     }
-    
-    public enum EntryType {
-        DEBIT,  // Money leaving account
-        CREDIT  // Money entering account
-    }
-    
-    public enum LedgerEntryStatus {
-        PENDING,
-        SETTLED,
-        REVERSED
-    }
 }
