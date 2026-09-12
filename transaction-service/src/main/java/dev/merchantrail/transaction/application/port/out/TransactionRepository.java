@@ -26,4 +26,9 @@ public interface TransactionRepository {
      * Finds all transactions for a merchant.
      */
     List<Transaction> findByMerchantId(MerchantId merchantId);
+
+    /**
+     * Finds all transactions in the system.
+     */
+    List<Transaction> findAll();
 }

@@ -74,6 +74,14 @@ const ReportsView: React.FC = () => {
     return e.status === statusFilter;
   });
 
+  if (loading && !summary) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}

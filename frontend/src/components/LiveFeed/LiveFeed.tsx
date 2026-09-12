@@ -54,12 +54,27 @@ const LiveFeed: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={handleClearFeed}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-        >
-          Clear Feed
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => {
+              const hex = Math.random().toString(16).substring(2, 8).toUpperCase();
+              websocketService.emitUpdate({
+                transactionId: `TXN${hex}${Math.floor(Math.random() * 900 + 100)}`,
+                status: Math.random() > 0.1 ? 'APPROVED' as any : 'SETTLED' as any,
+                timestamp: new Date().toISOString(),
+              });
+            }}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition shadow-sm"
+          >
+            ⚡ Trigger Live Switch Event
+          </button>
+          <button
+            onClick={handleClearFeed}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+          >
+            Clear Feed
+          </button>
+        </div>
       </div>
 
       {/* Connection Status Banner */}

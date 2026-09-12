@@ -42,4 +42,12 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             .map(TransactionJpaEntity::toDomain)
             .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Transaction> findAll() {
+        return jpaRepository.findAll()
+            .stream()
+            .map(TransactionJpaEntity::toDomain)
+            .collect(Collectors.toList());
+    }
 }

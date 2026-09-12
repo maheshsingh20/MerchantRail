@@ -1,5 +1,5 @@
 import React from 'react';
-import { Transaction, TransactionStatus } from '../../types/transaction';
+import { Transaction } from '../../types/transaction';
 import StatusBadge from '../Common/StatusBadge';
 
 interface TransactionTableProps {
