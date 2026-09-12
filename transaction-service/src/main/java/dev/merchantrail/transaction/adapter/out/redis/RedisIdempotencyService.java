@@ -21,7 +21,7 @@ public class RedisIdempotencyService implements IdempotencyService {
     
     private final RedisTemplate<String, String> redisTemplate;
     
-    public RedisIdempotencyService(RedisTemplate<String, String> redisTemplate) {
+    public RedisIdempotencyService(@org.springframework.beans.factory.annotation.Qualifier("redisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
     

@@ -52,7 +52,7 @@ public class TransactionController {
     
     @GetMapping("/{transactionId}")
     public ResponseEntity<TransactionResponse> getTransaction(
-            @PathVariable String transactionId) {
+            @PathVariable("transactionId") String transactionId) {
         
         GetTransactionQuery query = new GetTransactionQuery(TransactionId.of(transactionId));
         Transaction transaction = getTransactionUseCase.execute(query);
@@ -63,7 +63,7 @@ public class TransactionController {
     
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> getTransactionsByMerchant(
-            @RequestParam String merchantId) {
+            @RequestParam("merchantId") String merchantId) {
         
         GetTransactionsByMerchantQuery query = 
             new GetTransactionsByMerchantQuery(MerchantId.of(merchantId));
